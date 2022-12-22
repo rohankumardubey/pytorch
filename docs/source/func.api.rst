@@ -52,6 +52,7 @@ with the replaced parameters.
     :nosignatures:
 
     functional_call
+    stack_ensembled_state
 
 If you're looking for information on fixing Batch Norm modules, please follow the
 guidance here
