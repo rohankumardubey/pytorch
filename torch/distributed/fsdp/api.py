@@ -103,7 +103,8 @@ class MixedPrecision:
 
     Attributes:
         param_dtype (torch.dtype): This specifies the dtype for model
-            parameters, inputs (when ``cast_forward_inputs`` is set to
+            parameters, inputs (when ``cast_forward_inputs`` or
+            ``cast_root_foward_inputs``is set to
             ``True``), and therefore the dtype for computation.
             However, outside the forward and backward passes, parameters are in
             full precision. Model checkpointing always happens in full
@@ -120,7 +121,10 @@ class MixedPrecision:
             optimizers that can perform the optimizer step in ``reduce_dtype``.
             (Default: ``False``)
         cast_forward_inputs (bool): Cast floating point tensors in the forward
-            arguments and keyword arguments to ``param_dtype``.
+            arguments and keyword arguments to ``param_dtype`` for non-root modules.
+            (Default: ``False``)
+        cast_root_foward_inputs (bool): Cast floating point tensors in the forward
+            arguments and keyword arguments to ``param_dtype`` for the root module.
             (Default: ``True``)
 
     .. note:: This API is experimental and subject to change.
@@ -157,7 +161,9 @@ class MixedPrecision:
     reduce_dtype: Optional[torch.dtype] = None
     buffer_dtype: Optional[torch.dtype] = None
     keep_low_precision_grads: bool = False
-    cast_forward_inputs: bool = True
+    cast_forward_inputs: bool = False
+    cast_root_foward_inputs: bool = True
+
 
 
 @dataclass

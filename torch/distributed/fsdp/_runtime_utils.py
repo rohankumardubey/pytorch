@@ -509,6 +509,14 @@ def _root_pre_forward(
     args = args_tuple[0]
     kwargs = kwargs_tuple[0]
 
+    input_dtype: Optional[torch.dtype] = state.mixed_precision.param_dtype
+    # Cast forward inputs in root FSDP instance if cast_root_foward_inputs is set as True
+    # in the root FSDP instance, otherwise cast forward inputs per FSDP instance
+    # in ``_pre_forward`` if ``cast_forward_inputs`` is set as True for that FSDP instances.
+    if state.mixed_precision.cast_root_foward_inputs:
+        args, kwargs = _cast_forward_inputs(
+            input_dtype, *args, **kwargs
+        )
     return args, kwargs
 
 
