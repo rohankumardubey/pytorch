@@ -307,7 +307,6 @@ def is_inplace(op, variant):
 
 vjp_fail = {
     xfail('tensor_split'),  # data_ptr composite compliance
-    xfail('NumpyExpMarkDirtyAutogradFunction'),  # https://github.com/pytorch/pytorch/issues/90225
 }
 
 aliasing_ops = {
@@ -450,7 +449,7 @@ class TestOperators(TestCase):
         xfail('nn.functional._scaled_dot_product_attention', device_type='cuda'),
 
         xfail('nn.functional.rrelu'),  # in-place test errors out with no formula implemented
-        xfail('NumpyExpMarkDirtyAutogradFunction'),  # https://github.com/pytorch/pytorch/issues/90225
+        xfail('NumpyExpMarkDirtyAutogradFunction'),  # TODO: https://github.com/pytorch/pytorch/issues/91280
 
         # --- Non-Contiguous Failures! ---
         # This is expected to fail as the operator
@@ -953,6 +952,7 @@ class TestOperators(TestCase):
         # skip because this is flaky depending on what the max_norm is!
         skip('nn.functional.embedding', ''),
         skip('to'),  # RuntimeError: required rank 4 tensor to use channels_last format
+        xfail('NumpyExpMarkDirtyAutogradFunction'),  # vmap: inplace into a regular tensor
         # ----------------------------------------------------------------------
 
         # ---------------------------- BUGS ------------------------------------
@@ -988,7 +988,6 @@ class TestOperators(TestCase):
         xfail("_native_batch_norm_legit"),
 
         xfail('nn.functional.prelu'),
-        xfail('NumpyExpMarkDirtyAutogradFunction'),  # https://github.com/pytorch/pytorch/issues/90225
         # ----------------------------------------------------------------------
     }
 
@@ -1458,6 +1457,7 @@ class TestOperators(TestCase):
 
         # Not actually a problem
         xfail('NumpyCubeNotComposableAutogradFunction'),  # not composable
+        xfail('NumpyExpMarkDirtyAutogradFunction'),  # vmap: inplace into a regular tensor
 
         # Potential bugs/errors
         xfail('as_strided'),  # AssertionError: Tensor-likes are not close!
@@ -1931,7 +1931,6 @@ class TestOperators(TestCase):
     @ops(autograd_function_db, allowed_dtypes=(torch.float32,))
     @skipOps('TestOperators', 'test_vmapvjpvmap', {
         xfail('NumpyCubeNotComposableAutogradFunction'),  # Not composable
-        xfail('NumpyExpMarkDirtyAutogradFunction'),  # https://github.com/pytorch/pytorch/issues/90225
     })
     def test_vmapvjpvmap(self, device, dtype, op):
         samples = op.sample_inputs(device, dtype, requires_grad=True)
@@ -1976,7 +1975,6 @@ class TestOperators(TestCase):
     @ops(autograd_function_db, allowed_dtypes=(torch.float32,))
     @skipOps('TestOperators', 'test_vjpvmapvmap', {
         xfail('NumpyCubeNotComposableAutogradFunction'),  # Not composable
-        xfail('NumpyExpMarkDirtyAutogradFunction'),  # https://github.com/pytorch/pytorch/issues/90225
     })
     def test_vjpvmapvmap(self, device, dtype, op):
         samples = op.sample_inputs(device, dtype, requires_grad=True)
@@ -2015,7 +2013,6 @@ class TestOperators(TestCase):
     @ops(autograd_function_db, allowed_dtypes=(torch.float32,))
     @skipOps('TestOperators', 'test_vjpvjpvmap', {
         xfail('NumpyCubeNotComposableAutogradFunction'),  # Not composable
-        xfail('NumpyExpMarkDirtyAutogradFunction'),  # https://github.com/pytorch/pytorch/issues/90225
     })
     def test_vjpvjpvmap(self, device, dtype, op):
         samples = op.sample_inputs(device, dtype, requires_grad=True)
