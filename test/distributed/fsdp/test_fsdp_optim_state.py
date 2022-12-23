@@ -1441,7 +1441,7 @@ class TestFSDPOptimState(FSDPTest):
         optim.step()
 
     @skip_if_lt_x_gpu(2)
-    def _test_compatible_with_named_optimizer(self):
+    def test_compatible_with_named_optimizer(self):
         class TestDummyModel(torch.nn.Module):
             def __init__(self):
                 super(TestDummyModel, self).__init__()
@@ -1465,6 +1465,7 @@ class TestFSDPOptimState(FSDPTest):
                 models[-1].named_parameters(),
                 torch.optim.Adam,
                 [{"params": models[-1].parameters()}],
+                models[-1],
                 lr=1e-2,
             )
         )
@@ -1475,6 +1476,9 @@ class TestFSDPOptimState(FSDPTest):
             loss = model(batch).sum()
             loss.backward()
             optim.step()
+            # if isinstance(optim, _NamedOptimizer):
+            #     state_dicts.append(optim.state_dict())
+            # else:
             state_dicts.append(FSDP._optim_state_dict(model, optim))
 
         self._check_same_param_groups(
@@ -1492,9 +1496,7 @@ class TestFSDPOptimState(FSDPTest):
             optims[1].step()
 
         # Load the state back to see if load_optim_state_dict works.
-        optims[1].load_state_dict(
-            FSDP._load_optim_state_dict_pre_hook(models[1], optims[1], state_dicts[1])
-        )
+        optims[1].load_state_dict(state_dicts[1])
         state_dicts[1] = FSDP._optim_state_dict(models[1], optims[1])
 
         self._check_same_param_groups(
